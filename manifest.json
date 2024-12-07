@@ -1,0 +1,32 @@
+{
+  "manifest_version": 3,
+  "name": "Screenshot Capture",
+  "version": "1.0",
+  "description": "Capture screenshots of web pages",
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["utils.js", "content.js"]
+    }
+  ],
+  "permissions": [
+    "debugger",
+    "activeTab",
+    "downloads"
+  ],
+  "action": {
+    "default_icon": {
+      "16": "icons/camera.svg",
+      "48": "icons/camera.svg",
+      "128": "icons/camera.svg"
+    }
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "icons": {
+    "16": "icons/camera.svg",
+    "48": "icons/camera.svg",
+    "128": "icons/camera.svg"
+  }
+} 
