@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Screenshot Capture",
   "version": "1.0",
-  "description": "Capture screenshots of web pages",
+  "description": "Capture Full Page screenshots of web pages",
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
@@ -17,9 +17,10 @@
   ],
   "action": {
     "default_icon": {
-      "16": "icons/camera.svg",
-      "48": "icons/camera.svg",
-      "128": "icons/camera.svg"
+      "16": "icons/camera2.png",
+      "32": "icons/camera2.png",
+      "48": "icons/camera2.png",
+      "128": "icons/camera2.png"
     }
   },
   "background": {
@@ -27,8 +28,9 @@
     "type": "module"
   },
   "icons": {
-    "16": "icons/camera.svg",
-    "48": "icons/camera.svg",
-    "128": "icons/camera.svg"
+    "16": "icons/camera2.png",
+    "32": "icons/camera2.png",
+    "48": "icons/camera2.png",
+    "128": "icons/camera2.png"
   }
 } 
