@@ -3,6 +3,7 @@ let snapshotCount = 0;
 let initialBodyHeight = 0;
 
 
+
 const hideFixedElements = () => {
     const currentFixedElements = getFixedElements();
     currentFixedElements.forEach((element) => {
@@ -35,20 +36,22 @@ const resetBodyHeight = () => {
 }
 
 
-
-
+const showFileSizeAlert = (noOfFiles, sendResponse) => {
+    const confirmed = confirm(`File size is too large to process, Screenshots will split into ${noOfFiles} files`);
+    sendResponse({ success: true, confirmed });
+}
 
 
 const scrollView = () => {
     const scrollableBody = getScrollableBody();
     if (window.scrollY + window.innerHeight >= scrollableBody.scrollHeight) {
-        return "COMPLETED";
+        return ActionTypes.COMPLETED;
     }
     window.scrollBy({
         top: window.innerHeight,
         behavior: 'instant'
     });
-    return "SCROLLING";
+    return ActionTypes.SCROLLING;
 };
 
 
@@ -70,7 +73,7 @@ const handleScroll = async (sendResponse) => {
         fixBodyHeight();
         await waitFor(100);
       }
-      const status = snapshotCount > 0 ? scrollView() : "SCROLLING";
+      const status = snapshotCount > 0 ? scrollView() : ActionTypes.SCROLLING;
       snapshotCount++
       sendResponse({ status, success: true });
 
@@ -88,13 +91,21 @@ const resetAdjustments = () => {
 
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.action === "scroll") {
+  if (message.action === ActionTypes.SCROLL) {
     handleScroll(sendResponse);
     return true;
   }
 
-  if(message.action === "showFixedElements"){
+  if(message.action === ActionTypes.SHOW_FIXED_ELEMENTS){
     resetAdjustments();
     sendResponse({ success: true });
   }
+
+  if(message.action === ActionTypes.SHOW_FILE_SIZE_ALERT){
+    showFileSizeAlert(message.noOfFiles, sendResponse);
+    return true;
+  }
 });
+
+
+chrome.runtime.sendMessage({ action: ActionTypes.CHECK_UPDATES });  
