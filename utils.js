@@ -1,5 +1,17 @@
 
 
+const ActionTypes = {
+    CHECK_UPDATES: "CHECK_UPDATES",
+    SHOW_FIXED_ELEMENTS: "SHOW_FIXED_ELEMENTS",
+    SCROLL: "SCROLL",
+    COMPLETED: "COMPLETED",
+    CONVERT_BLOB_TO_BASE64: "CONVERT_BLOB_TO_BASE64",
+    SHOW_FILE_SIZE_ALERT: "SHOW_FILE_SIZE_ALERT"
+}   
+
+
+
+
  const getScrollableBody = () => {
     return document.documentElement;
 }
