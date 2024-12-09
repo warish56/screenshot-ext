@@ -53,6 +53,44 @@ const ActionTypes = {
   }
 
 
+const createPointerDiv = () => {
+    const WIDTH = 10;
+    const HEIGHT = 10;
+    const div = document.createElement('div');
+    div.id = 'pointer-div';
+    div.style.position = 'fixed';
+    div.style.width = `${WIDTH}px`;
+    div.style.height = `${HEIGHT}px`;
+    div.style.backgroundColor = 'rgba(0, 0, 0, 0.1)';
+    div.style.borderRadius = '50%';
+    div.style.zIndex = '100001';
+    div.innerHTML = `
+        <span style="font-size: 10px; font-weight: bold; display:flex; flex-flow:column; align-items:center; justify-content:center; gap: 5px; line-height:1;">
+            <span></span>
+            <span></span>
+        </span>
+    `
+    const coordinatesContainerElement = div.firstElementChild;
+
+    document.body.appendChild(div);
+
+    const setCoordinatesText = (x, y) => {
+        coordinatesContainerElement.firstElementChild.textContent = `${x}`;
+        coordinatesContainerElement.lastElementChild.textContent = `${y}`;
+    }
+
+    const setCoordinates = (x, y) => {
+        div.style.left = `${x - WIDTH / 2}px`;
+        div.style.top = `${y - HEIGHT / 2}px`;
+        coordinatesContainerElement.style.transform = `translate(10px, 10px)`;
+    }
+
+    const unMount = () => {
+        div.remove();
+    }
+    return {div, unMount, setCoordinatesText, setCoordinates};
+}
+
 
 const createSelectAreaDiv = () => {
     const div = document.createElement('div');
@@ -63,6 +101,7 @@ const createSelectAreaDiv = () => {
     div.style.height = '0px';
     div.style.inset = '0';
     div.style.zIndex = '100000';
+    div.style.backgroundColor = 'rgba(0, 0, 0, 0.1)';
     document.body.appendChild(div);
 
     const unMount = () => {

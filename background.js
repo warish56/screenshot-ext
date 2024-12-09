@@ -80,6 +80,7 @@ const takeFullPageScreenshot = async (tabId) => {
 
 
 const captureSpecificPartOfPage = async (tabId) => {
+  try{
     trackEvent(Events.CAPTURE_SPECIFIC_PART);
     await chrome.debugger.attach({ tabId: tabId }, "1.3");
     const response = await waitForMessage(tabId, { action: ActionTypes.CNT_CAPTURE_SPECIFIC_AREA });
@@ -95,6 +96,10 @@ const captureSpecificPartOfPage = async (tabId) => {
     await chrome.debugger.detach({ tabId: tabId });
     const stitchedBlob = await stitchImages([screenshotResponse.data], {sx: x, sy: y, width, height});
     await saveScreenshots([stitchedBlob]);
+  } catch(err){
+    console.error("Error capturing screenshot:", err);
+    await chrome.debugger.detach({ tabId: tabId }).catch(() => {});
+  }
 }
 
 
