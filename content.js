@@ -45,13 +45,13 @@ const showFileSizeAlert = (noOfFiles, sendResponse) => {
 const scrollView = () => {
     const scrollableBody = getScrollableBody();
     if (window.scrollY + window.innerHeight >= scrollableBody.scrollHeight) {
-        return ActionTypes.COMPLETED;
+        return ActionTypes.BG_COMPLETED;
     }
     window.scrollBy({
         top: window.innerHeight,
         behavior: 'instant'
     });
-    return ActionTypes.SCROLLING;
+    return ActionTypes.BG_SCROLLING;
 };
 
 
@@ -73,7 +73,7 @@ const handleScroll = async (sendResponse) => {
         fixBodyHeight();
         await waitFor(100);
       }
-      const status = snapshotCount > 0 ? scrollView() : ActionTypes.SCROLLING;
+      const status = snapshotCount > 0 ? scrollView() : ActionTypes.BG_SCROLLING;
       snapshotCount++
       sendResponse({ status, success: true });
 
@@ -90,22 +90,86 @@ const resetAdjustments = () => {
 }
 
 
+
+
+
+const captureSpecificPartOfPage = (sendResponse) => {
+    const {div, unMount:unMountDiv} = createSelectAreaDiv();
+    const removeStyles = appendNonSelectStylesToBody();
+    let initialX = 0;
+    let initialY = 0;
+    let finalWidth = 0;
+    let finalHeight = 0;
+
+  
+    const onMouseUp = () => {
+        removeMouseListeners();
+        removeStyles();
+        unMountDiv();
+        const clipOptions = convertViewPortCoordinatesToImageCoordinates(initialX, initialY, finalWidth, finalHeight);
+        sendResponse({ 
+            success: true, 
+            clipOptions
+        });
+    }
+
+    const onMouseMove = (event) => {
+        const {clientX, clientY} = event;
+        const width = clientX - div.offsetLeft;
+        const height = clientY - div.offsetTop;
+        div.style.width = `${width}px`;
+        div.style.height = `${height}px`;
+        finalWidth = width;
+        finalHeight = height;
+    }
+
+    const onMouseDown = (event) => {
+        const {clientX, clientY} = event;
+        div.style.left = `${clientX}px`;
+        div.style.top = `${clientY}px`;
+        initialX = clientX;
+        initialY = clientY;
+        document.body.addEventListener('mousemove', onMouseMove);
+    }
+    
+
+
+
+    const addMouseListeners = () => {
+        document.body.addEventListener('mousedown', onMouseDown);
+        document.body.addEventListener('mouseup', onMouseUp);
+    }
+    
+    const removeMouseListeners = () => {
+        document.body.removeEventListener('mousedown', onMouseDown);
+        document.body.removeEventListener('mouseup', onMouseUp);
+        document.body.removeEventListener('mousemove', onMouseMove);
+    }
+     addMouseListeners();
+}
+
+
+
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.action === ActionTypes.SCROLL) {
-    handleScroll(sendResponse);
-    return true;
-  }
 
-  if(message.action === ActionTypes.SHOW_FIXED_ELEMENTS){
-    resetAdjustments();
-    sendResponse({ success: true });
-  }
-
-  if(message.action === ActionTypes.SHOW_FILE_SIZE_ALERT){
-    showFileSizeAlert(message.noOfFiles, sendResponse);
-    return true;
-  }
+    switch(message.action){
+        case ActionTypes.CNT_SCROLL:
+            handleScroll(sendResponse);
+            return true;
+        case ActionTypes.CNT_SHOW_FIXED_ELEMENTS:
+            resetAdjustments();
+            sendResponse({ success: true });
+            break;
+        case ActionTypes.CNT_CAPTURE_SPECIFIC_AREA:
+            captureSpecificPartOfPage(sendResponse);
+            return true;
+        case ActionTypes.CNT_SHOW_FILE_SIZE_ALERT:
+            showFileSizeAlert(message.noOfFiles, sendResponse);
+            return true;
+        default:
+            return true;
+    }       
 });
 
 
-chrome.runtime.sendMessage({ action: ActionTypes.CHECK_UPDATES });  
+chrome.runtime.sendMessage({ action: ActionTypes.BG_CHECK_UPDATES });  

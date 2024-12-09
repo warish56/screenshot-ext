@@ -1,12 +1,14 @@
 
 
 const ActionTypes = {
-    CHECK_UPDATES: "CHECK_UPDATES",
-    SHOW_FIXED_ELEMENTS: "SHOW_FIXED_ELEMENTS",
-    SCROLL: "SCROLL",
-    COMPLETED: "COMPLETED",
-    CONVERT_BLOB_TO_BASE64: "CONVERT_BLOB_TO_BASE64",
-    SHOW_FILE_SIZE_ALERT: "SHOW_FILE_SIZE_ALERT"
+    CNT_SHOW_FILE_SIZE_ALERT: "CNT_SHOW_FILE_SIZE_ALERT",
+    CNT_CAPTURE_SPECIFIC_AREA: "CNT_CAPTURE_SPECIFIC_AREA",
+    CNT_SHOW_FIXED_ELEMENTS: "CNT_SHOW_FIXED_ELEMENTS",
+    CNT_SCROLL: "CNT_SCROLL",
+
+    BG_SCROLLING: "BG_SCROLLING",
+    BG_COMPLETED: "BG_COMPLETED",
+    BG_CHECK_UPDATES: "BG_CHECK_UPDATES",
 }   
 
 
@@ -39,3 +41,46 @@ const ActionTypes = {
     });
   };
   
+
+  const convertViewPortCoordinatesToImageCoordinates = (x, y, width, height) => {
+    const dpr = window.devicePixelRatio || 1;
+    return {
+        x: Math.round(x * dpr),
+        y: Math.round(y * dpr),
+        width: Math.round(width * dpr),
+        height: Math.round(height * dpr)
+    }
+  }
+
+
+
+const createSelectAreaDiv = () => {
+    const div = document.createElement('div');
+    div.id = 'capture-specific-part-of-page';
+    div.style.border = '1px dashed black';
+    div.style.position = 'fixed';
+    div.style.width = '0px';
+    div.style.height = '0px';
+    div.style.inset = '0';
+    div.style.zIndex = '100000';
+    document.body.appendChild(div);
+
+    const unMount = () => {
+        div.remove();
+    }
+    return {div, unMount};
+}
+
+const appendNonSelectStylesToBody = () => {
+    const style = document.createElement('style');
+    style.textContent = `
+        * {
+            user-select: none !important;
+            cursor: crosshair !important;
+        }
+    `;
+    document.head.appendChild(style);
+    return () => {
+        style.remove();
+    }
+}
