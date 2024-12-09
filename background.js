@@ -82,9 +82,14 @@ const takeFullPageScreenshot = async (tabId) => {
 const captureSpecificPartOfPage = async (tabId) => {
   try{
     trackEvent(Events.CAPTURE_SPECIFIC_PART);
-    await chrome.debugger.attach({ tabId: tabId }, "1.3");
     const response = await waitForMessage(tabId, { action: ActionTypes.CNT_CAPTURE_SPECIFIC_AREA });
     const {x, y, width, height} = response.clipOptions;
+
+    if(width === 0 || height === 0){
+      return;
+    }
+
+    await chrome.debugger.attach({ tabId: tabId }, "1.3");
     const screenshotResponse = await chrome.debugger.sendCommand(
         { tabId: tabId },
         "Page.captureScreenshot",
@@ -99,6 +104,15 @@ const captureSpecificPartOfPage = async (tabId) => {
   } catch(err){
     console.error("Error capturing screenshot:", err);
     await chrome.debugger.detach({ tabId: tabId }).catch(() => {});
+  }
+}
+
+const handleCommand = async (command) => {
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  if(command === ActionTypes.BG_TAKE_FULL_PAGE_SCREENSHOT){
+    takeFullPageScreenshot(tab.id);
+  }else if(command === ActionTypes.BG_CAPTURE_SPECIFIC_AREA){
+    captureSpecificPartOfPage(tab.id);
   }
 }
 
@@ -118,6 +132,13 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     }
 })
 
+
+/**
+ * Listening to keyboard shortcuts
+ */
+chrome.commands.onCommand.addListener((command) => {
+  handleCommand(command);
+});
 
 
 /**

@@ -34,5 +34,21 @@
     "32": "icons/camera2.png",
     "48": "icons/camera2.png",
     "128": "icons/camera2.png"
+  },
+  "commands": {
+    "BG_CAPTURE_SPECIFIC_AREA": {
+      "suggested_key": {
+        "default": "Ctrl+X",
+        "mac": "Command+X"
+      },
+      "description": "Capture Specific Part of Page"
+    },
+    "BG_TAKE_FULL_PAGE_SCREENSHOT": {
+      "suggested_key": {
+        "default": "Ctrl+Z",
+        "mac": "Command+Z"
+      },
+      "description": "Take Full Page Screenshot"
+    } 
   }
 } 
