@@ -1,14 +1,24 @@
 export const ActionTypes = {
-    CHECK_UPDATES: "CHECK_UPDATES",
-    SHOW_FIXED_ELEMENTS: "SHOW_FIXED_ELEMENTS",
-    SCROLL: "SCROLL",
-    COMPLETED: "COMPLETED",
-    CONVERT_BLOB_TO_BASE64: "CONVERT_BLOB_TO_BASE64",
-    SHOW_FILE_SIZE_ALERT: "SHOW_FILE_SIZE_ALERT"
+
+    CNT_SHOW_FIXED_ELEMENTS: "CNT_SHOW_FIXED_ELEMENTS",
+    CNT_SCROLL: "CNT_SCROLL",
+    CNT_SHOW_FILE_SIZE_ALERT: "SHOW_FILE_SIZE_ALERT",
+    CNT_CAPTURE_SPECIFIC_AREA: "CNT_CAPTURE_SPECIFIC_AREA",
+
+
+    BG_CHECK_UPDATES: "BG_CHECK_UPDATES",
+    BG_SCROLLING: "BG_SCROLLING",
+    BG_COMPLETED: "BG_COMPLETED",
+    BG_CAPTURE_SPECIFIC_AREA: "BG_CAPTURE_SPECIFIC_AREA",
+    BG_TAKE_FULL_PAGE_SCREENSHOT: "BG_TAKE_FULL_PAGE_SCREENSHOT",
+
+
 };
 
 export const Events = {
-    TAKE_SCREENSHOT: "screen_shot",
+    TAKE_FULL_PAGE_SCREEN_SHOT: "screen_shot",
+    CAPTURE_SPECIFIC_PART: 'capture_specific_part',
+    POPUP_OPEN: 'popup_open',
     EXTENSION_INSTALLED: "extension_installed",
     FILE_SAVED: "file_saved",
     EXTENSION_UNINSTALLED: "extension_uninstalled",
@@ -154,14 +164,15 @@ export const saveScreenshots = async (blobs) => {
 
 
 
-export const stitchImages = async (base64Array) => {
+export const stitchImages = async (base64Array, clipOptions=null) => {
     try {
 
       // Create bitmaps one at a time to manage memory better
       const blobsPromise = base64Array.map((base64) => fetch(`data:image/${FILE_FORMAT};base64,${base64}`).then(res  => res.blob()));
       const blobs = await Promise.all(blobsPromise);
 
-      const btimapsPromise = blobs.map((blob) => createImageBitmap(blob));
+      const {sx=0, sy=0, width=0, height=0} = clipOptions ?? {};
+      const btimapsPromise = blobs.map((blob) => clipOptions ?  createImageBitmap(blob, sx, sy, width, height) : createImageBitmap(blob));
       const bitmaps = await Promise.all(btimapsPromise);
 
       // Calculate total height
