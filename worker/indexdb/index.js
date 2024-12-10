@@ -18,7 +18,6 @@ export default class Database{
         return new Promise((resolve, reject) => {   
             const request = indexedDB.open(this.dbName, this.dbVersion);
             request.onerror = (event) => {
-                console.log("===DB Open error ===", event);
                 reject(event);
             };
             request.onsuccess  = () => {
@@ -35,7 +34,6 @@ export default class Database{
             };
             request.onupgradeneeded = (event) => {
                 const db = event.target.result;
-                console.log("===DB Upgrade needed ===", {event,names:db.objectStoreNames});
                 this.tableDetails = {
                     ...this.tableDetails,
                     tableName,
@@ -58,7 +56,6 @@ export default class Database{
 
 
     async getDb(){
-        console.log("===getDb ===", this.db);
         if(this.db){
             return this.db;
         }

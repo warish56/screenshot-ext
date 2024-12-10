@@ -37,6 +37,18 @@ export const MixPanel = {
 export const MAX_SCREENSHOTS_PER_FILE = 20;
 export const FILE_FORMAT = "png";
 export const FILE_QUALITY = 100;
+export const MAX_HISTORY_ITEMS = 10;
+
+export const DbData = {
+  dbName: "screenshot",
+  dbVersion: 3,
+  tables:{
+    history:{
+      tableName: "history",
+      keyPath: "id"
+    }
+  }
+}
 
 export const generateUserId = () => {
     let id='';
