@@ -7,7 +7,7 @@
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["utils.js", "content.js"]
+      "js": ["content-scripts/utils.js", "content-scripts/full_page_screenshot.js", "content-scripts/specific_part_screenshot.js", "content-scripts/content.js"]
     }
   ],
   "permissions": [
@@ -26,7 +26,7 @@
     }
   },
   "background": {
-    "service_worker": "background.js",
+    "service_worker": "worker/background.js",
     "type": "module"
   },
   "icons": {
@@ -38,8 +38,8 @@
   "commands": {
     "BG_CAPTURE_SPECIFIC_AREA": {
       "suggested_key": {
-        "default": "Ctrl+X",
-        "mac": "Command+X"
+        "default": "Ctrl+Shift+X",
+        "mac": "Command+Shift+X"
       },
       "description": "Capture Specific Part of Page"
     },

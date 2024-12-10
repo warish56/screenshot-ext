@@ -28,10 +28,22 @@
             </button>
         </div>
 
+        <!-- History Section -->
+        <div class="history-section">
+            <div class="history-header">
+                <h3>Recent Captures</h3>
+                <button id="clearHistory" class="clear-btn">Clear All</button>
+            </div>
+            <div class="history-list" id="historyList">
+                <!-- Screenshots will be added here dynamically -->
+                <div class="empty-state">No screenshots yet</div>
+            </div>
+        </div>
+
         <div class="version_container"> 
             <span class="light_text">Version <span id="ext_version"></span></span>
         </div>
     </div>
-    <script src="popup.js"></script>
+    <script src="popup.js" type="module"></script>
 </body>
 </html>

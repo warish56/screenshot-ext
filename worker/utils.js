@@ -11,7 +11,12 @@ export const ActionTypes = {
     BG_COMPLETED: "BG_COMPLETED",
     BG_CAPTURE_SPECIFIC_AREA: "BG_CAPTURE_SPECIFIC_AREA",
     BG_TAKE_FULL_PAGE_SCREENSHOT: "BG_TAKE_FULL_PAGE_SCREENSHOT",
+    BG_GET_HISTORY: "BG_GET_HISTORY",
+    BG_CLEAR_HISTORY: "BG_CLEAR_HISTORY",
+    BG_DELETE_HISTORY_ITEM: "BG_DELETE_HISTORY_ITEM",
 
+
+    EXT_HISTORY_UPDATED: "EXT_HISTORY_UPDATED",
 
 };
 
@@ -32,6 +37,18 @@ export const MixPanel = {
 export const MAX_SCREENSHOTS_PER_FILE = 20;
 export const FILE_FORMAT = "png";
 export const FILE_QUALITY = 100;
+export const MAX_HISTORY_ITEMS = 10;
+
+export const DbData = {
+  dbName: "screenshot",
+  dbVersion: 3,
+  tables:{
+    history:{
+      tableName: "history",
+      keyPath: "id"
+    }
+  }
+}
 
 export const generateUserId = () => {
     let id='';
