@@ -8,8 +8,68 @@ import {
     FILE_FORMAT,
     FILE_QUALITY,
     stitchImages,
-    checkForUpdates
+    checkForUpdates,
+    blobToBase64
 } from './background-utils.js';
+import Database from './indexdb/index.js';
+
+const DbData = {
+    dbName: "screenshot",
+    dbVersion: 3,
+    tables:{
+      history:{
+        tableName: "history",
+        keyPath: "id"
+      }
+    }
+}
+
+
+const addToHistory = async (blobs=[]) => {
+  try{
+    console.log("===blobs", blobs);
+
+    const db = new Database(DbData.dbName, DbData.dbVersion);
+    await db.createOrGetTable(DbData.tables.history.tableName, DbData.tables.history.keyPath);
+
+    const history = [];
+    for(let i = 0; i < blobs.length; i++){
+      const base64 = await blobToBase64(blobs[i]);
+      const data = {
+        imageData: `data:image/${FILE_FORMAT};base64,${base64}`,
+        id: Date.now()
+      }
+      history.push(data);
+      await db.add(data);
+    }
+
+    console.log("===history", history);
+
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    await waitForMessage(tab.id, {action: ActionTypes.EXT_HISTORY_UPDATED, data: history });
+  } catch(err){
+    console.error("Error adding to history:", err);
+  }
+}
+
+const getAllHistory = async () => {
+  const db = new Database(DbData.dbName, DbData.dbVersion);
+  await db.createOrGetTable(DbData.tables.history.tableName, DbData.tables.history.keyPath);
+  return db.getAllValues();
+}
+
+const clearHistory = async () => {
+  const db = new Database(DbData.dbName, DbData.dbVersion);
+  await db.createOrGetTable(DbData.tables.history.tableName, DbData.tables.history.keyPath);
+  await db.clearTable(DbData.tables.history.tableName);
+}
+
+const deleteHistoryItem = async (id) => {
+  console.log("===deleteHistoryItem ===", id);
+  const db = new Database(DbData.dbName, DbData.dbVersion);
+  await db.createOrGetTable(DbData.tables.history.tableName, DbData.tables.history.keyPath);
+  await db.deleteValue(id);
+}
 
 
 /**
@@ -71,7 +131,7 @@ const takeFullPageScreenshot = async (tabId) => {
     
         // 5. Save all files at once
         await saveScreenshots(blobs);
-    
+        addToHistory(blobs);
       } catch (err) {
         console.error("Error capturing screenshot:", err);
         await chrome.debugger.detach({ tabId }).catch(() => {});
@@ -101,6 +161,7 @@ const captureSpecificPartOfPage = async (tabId) => {
     await chrome.debugger.detach({ tabId: tabId });
     const stitchedBlob = await stitchImages([screenshotResponse.data], {sx: x, sy: y, width, height});
     await saveScreenshots([stitchedBlob]);
+    addToHistory([stitchedBlob]);
   } catch(err){
     console.error("Error capturing screenshot:", err);
     await chrome.debugger.detach({ tabId: tabId }).catch(() => {});
@@ -130,6 +191,18 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         captureSpecificPartOfPage(message.tabId);
         return true;
     }
+    if(message.action === ActionTypes.BG_GET_HISTORY){
+        getAllHistory().then((values) => sendResponse({history:values}));
+        return true;
+    }
+    if(message.action === ActionTypes.BG_CLEAR_HISTORY){
+        clearHistory();
+        return true;
+    }
+    if(message.action === ActionTypes.BG_DELETE_HISTORY_ITEM){
+        deleteHistoryItem(message.id);
+        return true;
+    } 
 })
 
 
