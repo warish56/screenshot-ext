@@ -45,8 +45,8 @@
     },
     "BG_TAKE_FULL_PAGE_SCREENSHOT": {
       "suggested_key": {
-        "default": "Ctrl+Z",
-        "mac": "Command+Z"
+        "default": "Ctrl+Shift+Z",
+        "mac": "Command+Shift+Z"
       },
       "description": "Take Full Page Screenshot"
     } 
