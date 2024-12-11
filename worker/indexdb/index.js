@@ -112,6 +112,20 @@ export default class Database{
         })
     }
 
+    async getValue(key){
+        return new Promise((resolve, reject) => {
+            const process = async () => {
+                const db = await this.getDb();
+                const transaction = db.transaction(this.tableDetails.tableName, 'readwrite');
+                const store = transaction.objectStore(this.tableDetails.tableName);
+                store.get(key).onsuccess = (event) => {
+                    resolve(event.target.result);
+                }
+            }
+            process();
+        })
+    }
+
 
     async deleteValue(key){
         return new Promise((resolve, reject) => {

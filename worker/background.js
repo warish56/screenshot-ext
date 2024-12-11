@@ -13,7 +13,8 @@ import {
 
 import {
     takeFullPageScreenshot,
-    captureSpecificPartOfPage
+    captureSpecificPartOfPage,
+    downloadScreenshot
 } from './jobs/screenshot.js';
 
 
@@ -61,6 +62,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         deleteHistoryItem(message.id);
         return true;
     } 
+    if(message.action === ActionTypes.BG_DOWNLOAD_SCREENSHOT){
+        downloadScreenshot(message.id);
+        return true;
+    }
 })
 
 

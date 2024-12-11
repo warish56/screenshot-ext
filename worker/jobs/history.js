@@ -42,6 +42,13 @@ export const getAllHistory = async () => {
   return db.getAllValues();
 }
 
+export const getHistory = async (screenshotId) => {
+  const db = new Database(DbData.dbName, DbData.dbVersion);
+  await db.createOrGetTable(DbData.tables.history.tableName, DbData.tables.history.keyPath);
+  return db.getValue(screenshotId);
+}
+
+
 export const clearHistory = async () => {
   const db = new Database(DbData.dbName, DbData.dbVersion);
   await db.createOrGetTable(DbData.tables.history.tableName, DbData.tables.history.keyPath);

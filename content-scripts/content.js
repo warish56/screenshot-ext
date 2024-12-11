@@ -11,13 +11,21 @@ const showFileSizeAlert = (noOfFiles, sendResponse) => {
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
     switch(message.action){
+        case ActionTypes.CNT_SCROLL_TO_TOP:
+            handleScrollToTop(sendResponse);
+            return true;
+
+        case ActionTypes.CNT_APPLY_BODY_ADJUSTMENTS:
+            handleBodyAdjustments(sendResponse);
+            return true;
+        
         case ActionTypes.CNT_SCROLL:
             /**
              * check file - full_page_screenshot.js
              */
             handleScroll(sendResponse);
             return true;
-        case ActionTypes.CNT_SHOW_FIXED_ELEMENTS:
+        case ActionTypes.CNT_RESET_BODY_ADJUSTMENTS:
             /**
              * check file - full_page_screenshot.js
              */
