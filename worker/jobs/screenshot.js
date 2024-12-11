@@ -1,4 +1,3 @@
-
 import { 
     ActionTypes, 
     Events, 
@@ -8,13 +7,28 @@ import {
     splitScreenShots,
     FILE_FORMAT,
     FILE_QUALITY,
-    stitchImages
+    stitchImages,
+    waitFor,
+    base64ToBlob,
 } from '../utils.js';
 
 import {
     addToHistory,
+    getHistory
 } from './history.js';
 
+
+
+const takeCurrentViewScreenshot = async (tabId=null) => {
+  /**
+   *  null tabId means capture current window
+   */
+    const dataUrl = await chrome.tabs.captureVisibleTab(tabId, {
+        format: FILE_FORMAT,
+        quality: FILE_QUALITY
+    });
+    return dataUrl.split(',')[1]; // Returns base64 without data URL prefix
+};
 
 
 /**
@@ -30,31 +44,33 @@ import {
 export const takeFullPageScreenshot = async (tabId) => {
     try {
         trackEvent(Events.TAKE_FULL_PAGE_SCREEN_SHOT);
-        await chrome.debugger.attach({ tabId }, "1.3");
         const screenShotsBase64 = [];
         let isCompleted = false;
+
+
+        // Scroll to top before taking a snapshot
+        await waitForMessage(tabId, { action: ActionTypes.CNT_SCROLL_TO_TOP });
+        // First Take the current view screenshot
+        const screenshotResponse = await takeCurrentViewScreenshot();
+        screenShotsBase64.push(screenshotResponse);
+
+
+        // Apply body adjustments for fixed style elements
+        await waitForMessage(tabId, { action: ActionTypes.CNT_APPLY_BODY_ADJUSTMENTS });
     
-        // 1. Scroll and capture screenshots
+        // 2. Take rest of the views screenshots
         while (!isCompleted) {
           const response = await waitForMessage(tabId, { action: ActionTypes.CNT_SCROLL });
           if (response?.status === ActionTypes.BG_COMPLETED) {
             isCompleted = true;
             break;
           }
-          
-          const screenshotResponse = await chrome.debugger.sendCommand(
-            { tabId },
-            "Page.captureScreenshot",
-            { 
-              format: FILE_FORMAT,
-              quality: FILE_QUALITY
-            }
-          );
-          screenShotsBase64.push(screenshotResponse.data);
+          const screenshotResponse = await takeCurrentViewScreenshot();
+          screenShotsBase64.push(screenshotResponse);
+          await waitFor(500);
         }
     
-        await chrome.debugger.detach({ tabId });
-        await waitForMessage(tabId, { action: ActionTypes.CNT_SHOW_FIXED_ELEMENTS });
+        await waitForMessage(tabId, { action: ActionTypes.CNT_RESET_BODY_ADJUSTMENTS });
     
         // 2. Split screenshots if more than 12
         const screenShots = splitScreenShots(screenShotsBase64);
@@ -79,7 +95,7 @@ export const takeFullPageScreenshot = async (tabId) => {
         addToHistory(blobs);
       } catch (err) {
         console.error("Error capturing screenshot:", err);
-        await chrome.debugger.detach({ tabId }).catch(() => {});
+        await waitForMessage(tabId, { action: ActionTypes.CNT_RESET_BODY_ADJUSTMENTS });
       }
 }   
 
@@ -103,23 +119,28 @@ export const captureSpecificPartOfPage = async (tabId) => {
         return;
       }
   
-      await chrome.debugger.attach({ tabId: tabId }, "1.3");
-      const screenshotResponse = await chrome.debugger.sendCommand(
-          { tabId: tabId },
-          "Page.captureScreenshot",
-          { 
-            format: FILE_FORMAT,
-            quality: FILE_QUALITY
-          }
-      );
-      await chrome.debugger.detach({ tabId: tabId });
-      const stitchedBlob = await stitchImages([screenshotResponse.data], {sx: x, sy: y, width, height});
+      const screenshotResponse = await takeCurrentViewScreenshot();
+
+      const stitchedBlob = await stitchImages([screenshotResponse], {sx: x, sy: y, width, height});
       await saveScreenshots([stitchedBlob]);
       addToHistory([stitchedBlob]);
     } catch(err){
       console.error("Error capturing screenshot:", err);
-      await chrome.debugger.detach({ tabId: tabId }).catch(() => {});
     }
   }
   
   
+
+  export const downloadScreenshot = async(screenshotId) => {
+    try {
+        const screenshot = await getHistory(screenshotId);
+        if (!screenshot) {
+            throw new Error('Screenshot not found');
+        }
+
+        const blob = base64ToBlob(screenshot.imageData);
+        await saveScreenshots([blob]);
+    } catch (err) {
+        console.error('Error downloading screenshot:', err);
+    }
+};

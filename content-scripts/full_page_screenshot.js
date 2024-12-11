@@ -1,8 +1,6 @@
 
 let fixedElements = [];
-let snapshotCount = 0;
 let initialBodyHeight = 0;
-
 
 
 const hideFixedElements = () => {
@@ -21,7 +19,6 @@ const showFixedElements = () => {
     
   };
 
-
   const fixBodyHeight = () => {
     const scrollableBody = getScrollableBody();
     const bodyHeight = scrollableBody.scrollHeight;
@@ -36,7 +33,6 @@ const resetBodyHeight = () => {
     scrollableBody.style.height = `${initialBodyHeight}px`;
 }
 
-
 const scrollView = () => {
     const scrollableBody = getScrollableBody();
     if (window.scrollY + window.innerHeight >= scrollableBody.scrollHeight) {
@@ -49,38 +45,30 @@ const scrollView = () => {
     return ActionTypes.BG_SCROLLING;
 };
 
-
-
-const handleScroll = async (sendResponse) => {
-    await waitFor(100);
-    if(snapshotCount === 0){
-        /**
-         * Always Scroll to top before taking a snapshot
-         */
-        scrollToTop();
-        await waitFor(100);
-    }
-
-    // Only hide fixed elements after the first snapshot is taken
-    if (snapshotCount === 1) {
-        hideFixedElements();
-        await waitFor(100);
-        fixBodyHeight();
-        await waitFor(100);
-      }
-      const status = snapshotCount > 0 ? scrollView() : ActionTypes.BG_SCROLLING;
-      snapshotCount++
-      sendResponse({ status, success: true });
-
+const handleScrollToTop = async (sendResponse) => {
+    await scrollToTop();
+    sendResponse({ success: true });
 }
 
+const handleBodyAdjustments = async (sendResponse) => {
+    hideFixedElements();
+    await waitFor(100);
+    fixBodyHeight();
+    await waitFor(100);
+    sendResponse({ success: true });
+}
 
+const handleScroll = async (sendResponse) => {
+    const status = scrollView();
+    await waitFor(100);
+    sendResponse({ status, success: true });
+
+}
 
 const resetAdjustments = () => {
     showFixedElements();
     resetBodyHeight();
     fixedElements = [];
-    snapshotCount = 0;
     initialBodyHeight = 0;
 }
 

@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Screenshot Capture",
-  "version": "1.1",
+  "version": "1.2",
   "description": "Capture Full Page screenshots of web pages",
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA2VM3ugz52pgXrV2QgsWpxl0qv00EEW1V5luvrhq9Y+AXLq+kyiH4OptHz6VKS1b0CEAAhdrCi4fKa55XQ90Aoe4YLDx9/pQoeLTPBjW5zImGrGaEt/GtmecR4CxnSaeAZd2MbxNsOD6B6LgGwqUB68Hrv8HUx8eEYQIPTYxPrHKjyq1rYmXaFWJZ3plhH5CEOq1BKq+cgTdyRIibHkHpPOc/p80ZPbCF024JPOM95LJficcI+gHDkITgYoGoZrGxqNouq/P1OjfbSRkU5/FLSb/kj57VH9HvnF1vuBfyzdyZaKLwU/65/pSEgRk7Q26IMpm8zH/S7+8/MLAuXYhSiQIDAQAB",
   "content_scripts": [
@@ -11,7 +11,6 @@
     }
   ],
   "permissions": [
-    "debugger",
     "activeTab",
     "downloads",
     "storage"

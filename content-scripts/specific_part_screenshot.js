@@ -3,7 +3,7 @@
 
 const captureSpecificPartOfPage = (sendResponse) => {
     const {div, unMount:unMountDiv} = createSelectAreaDiv();
-    const {div:pointerDiv, unMount:unMountPointerDiv, setCoordinatesText, setCoordinates} = createPointerDiv();
+    const { unMount:unMountPointerDiv, setCoordinatesText, setCoordinates} = createPointerDiv();
     const removeStyles = appendNonSelectStylesToBody();
     let initialX = 0;
     let initialY = 0;
@@ -24,10 +24,17 @@ const captureSpecificPartOfPage = (sendResponse) => {
         unMountDiv();
         unMountPointerDiv();
         const clipOptions = convertViewPortCoordinatesToImageCoordinates(initialX, initialY, finalWidth, finalHeight);
-        sendResponse({ 
-            success: true, 
-            clipOptions
-        });
+
+        /**
+         * We need to wait for 100ms so that the selected area get times to be unmounted from th ui
+         * so that it should not be present in the screenshot
+         */
+        setTimeout(() => {
+            sendResponse({ 
+                success: true, 
+                clipOptions
+            });
+        }, 100)
     }
 
     /**

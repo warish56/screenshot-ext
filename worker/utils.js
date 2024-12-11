@@ -1,9 +1,11 @@
 export const ActionTypes = {
 
-    CNT_SHOW_FIXED_ELEMENTS: "CNT_SHOW_FIXED_ELEMENTS",
+    CNT_RESET_BODY_ADJUSTMENTS: "CNT_RESET_BODY_ADJUSTMENTS",
     CNT_SCROLL: "CNT_SCROLL",
-    CNT_SHOW_FILE_SIZE_ALERT: "SHOW_FILE_SIZE_ALERT",
+    CNT_SHOW_FILE_SIZE_ALERT: "CNT_SHOW_FILE_SIZE_ALERT",
     CNT_CAPTURE_SPECIFIC_AREA: "CNT_CAPTURE_SPECIFIC_AREA",
+    CNT_SCROLL_TO_TOP: "CNT_SCROLL_TO_TOP",
+    CNT_APPLY_BODY_ADJUSTMENTS: "CNT_APPLY_BODY_ADJUSTMENTS",
 
 
     BG_CHECK_UPDATES: "BG_CHECK_UPDATES",
@@ -14,6 +16,7 @@ export const ActionTypes = {
     BG_GET_HISTORY: "BG_GET_HISTORY",
     BG_CLEAR_HISTORY: "BG_CLEAR_HISTORY",
     BG_DELETE_HISTORY_ITEM: "BG_DELETE_HISTORY_ITEM",
+    BG_DOWNLOAD_SCREENSHOT: "BG_DOWNLOAD_SCREENSHOT",
 
 
     EXT_HISTORY_UPDATED: "EXT_HISTORY_UPDATED",
@@ -228,5 +231,25 @@ export const stitchImages = async (base64Array, clipOptions=null) => {
 export const checkForUpdates = () => {
     chrome.runtime.requestUpdateCheck();
 }
+
+/**
+ * Convert base64 string to Blob
+ * @param {string} base64Data - The base64 string (can include data URL prefix)
+ * @returns {Blob} - The converted Blob
+ */
+export const base64ToBlob = (base64Data) => {
+    // Get the base64 content after the comma
+    const base64Content = base64Data.split(',')[1];
+    
+    // Create array buffer from base64
+    const byteCharacters = atob(base64Content);
+    const byteArray = new Uint8Array(byteCharacters.length);
+    
+    for (let i = 0; i < byteCharacters.length; i++) {
+        byteArray[i] = byteCharacters.charCodeAt(i);
+    }
+    
+    return new Blob([byteArray], { type: `image/${FILE_FORMAT}`});
+};
 
   
